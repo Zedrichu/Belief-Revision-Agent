@@ -62,12 +62,12 @@ def resolution(base: BeliefBase, alpha: BooleanFunction):
         new_clauses = set()
         for clause1 in clauses:
             for clause2 in clauses:
-                resolvent = Clause.resolve(clause1, clause2)
-                if resolvent is None:
-                    continue
-                if resolvent.is_empty_clause():
+                resolvents = Clause.resolve(clause1, clause2)
+                if Clause.empty_clause() in resolvents:
+                    for r in resolvents:
+                        print(r)
                     return True
-                new_clauses.add(resolvent)
+                new_clauses.update(resolvents)
         if new_clauses.issubset(clauses):
             return False
         clauses.update(new_clauses)
@@ -83,7 +83,9 @@ if __name__ == '__main__':
     c1 = clauses.pop()
     c2 = clauses.pop()
     res = Clause.resolve(c1, c2)
+    assert Clause.empty_clause() in {Clause.empty_clause()}
     if res is not None:
-        print(res)
-    print(resolution(base, symbols('A')))
+        for r in res:
+            print(r)
+    print(resolution(base, symbols('~A')))
     pass
