@@ -39,4 +39,5 @@ class Clause:
                     tmp1 = c1.literals.difference({i})
                     tmp2 = c2.literals.difference({j})
                     resolvents.add(Clause(tmp1.union(tmp2)))
+        #TODO: Remove trivial clauses from resolvents (l and ~l found in the same clause)
         return resolvents

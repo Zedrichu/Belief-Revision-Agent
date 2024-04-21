@@ -1,7 +1,5 @@
 import copy
-
 from sympy import symbols
-from sympy.logic.boolalg import *
 
 from Clause import Clause
 from utils import *
@@ -9,22 +7,14 @@ from Belief import Belief
 from BeliefBase import BeliefBase
 
 
-def entails(premise_base, statement):
+def entails(premise_base, statement) -> bool:
     """
     Entailment (BB ⊨ φ) checking using resolution refutation - proving BB ∧ ¬φ is unsatisfiable
-    :param premise_base:
-    :param statement:
-    :return:
+    :param premise_base: belief base considered as the premise
+    :param statement: statement to be entailed
+    :return: boolean value if the statement is entailed by the premise base
     """
-    # Create a new belief base with the premise base and the negation of the formula
-    belief_base = premise_base.copy()
-    belief_base.add(~statement)
-
-    # Split base into conjunctions of clauses
-    clauses = set()
-    for belief in belief_base.beliefs:
-        clauses.add(belief.formula)
-
+    return resolution(premise_base, statement)
 
 """
 Propositional logic resolution pseudoalgorithm
@@ -60,21 +50,29 @@ def resolution(base: BeliefBase, alpha: BooleanFunction):
     # Apply resolution refutation
     while True:
         new_clauses = set()
+        # Attempt to resolve each pair of clauses
         for clause1 in clauses:
             for clause2 in clauses:
+                # Set of all possible resolvents if clauses are clashing
                 resolvents = Clause.resolve(clause1, clause2)
+                # If the empty clause is found, the formula is entailed (refutation is unsatisfiable)
                 if Clause.empty_clause() in resolvents:
-                    for r in resolvents:
-                        print(r)
+                    # Printout for debugging
+                    # for r in resolvents:
+                    #     print(r)
                     return True
+                # Add the resolvents to the new set of clauses
                 new_clauses.update(resolvents)
+        # No new resolvent were found - formula is not entailed (refutation is satisfiable)
         if new_clauses.issubset(clauses):
             return False
+        # Union of the new resolvents with the set of clauses in the base
         clauses.update(new_clauses)
 
 
 if __name__ == '__main__':
-    beliefs = [Belief('A'), Belief('C >> B'), Belief('A >> C')]
+    # Test the example from the slides (Robert and the exam)
+    beliefs = [Belief('(R >> P | L) & ((P | L) >> R)'), Belief('~R')]
     base = BeliefBase(beliefs)
     print(base)
     clauses = base.clausal_form()
@@ -83,9 +81,13 @@ if __name__ == '__main__':
     c1 = clauses.pop()
     c2 = clauses.pop()
     res = Clause.resolve(c1, c2)
-    assert Clause.empty_clause() in {Clause.empty_clause()}
     if res is not None:
         for r in res:
             print(r)
-    print(resolution(base, symbols('~A')))
+    print(resolution(base, ~symbols('P')))
+    # Test that the empty clause is found in the set of clauses
+    assert Clause.empty_clause() in {Clause.empty_clause()}
+    # Test that
+    for r in Clause.resolve(Clause({'A', 'B'}), Clause({'A', Not('B')})):
+        print(r)
     pass
