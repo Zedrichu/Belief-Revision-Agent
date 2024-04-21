@@ -1,6 +1,7 @@
 from typing import Set
 from sympy.logic.boolalg import Not
 
+
 class Clause:
 
     def __init__(self, literals: Set):
@@ -17,6 +18,9 @@ class Clause:
 
     def __hash__(self):
         return hash(self.literals)
+
+    def is_empty_clause(self):
+        return self.literals == frozenset()
 
     @staticmethod
     def resolve(c1, c2):

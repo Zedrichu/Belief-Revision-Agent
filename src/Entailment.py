@@ -62,17 +62,19 @@ def resolution(base: BeliefBase, alpha: BooleanFunction):
         new_clauses = set()
         for clause1 in clauses:
             for clause2 in clauses:
-                resolvents = Clause.resolve(clause1, clause2)
-                if resolvents is None:
+                resolvent = Clause.resolve(clause1, clause2)
+                if resolvent is None:
+                    continue
+                if resolvent.is_empty_clause():
                     return True
-                new_clauses.update(resolvents)
+                new_clauses.add(resolvent)
         if new_clauses.issubset(clauses):
             return False
         clauses.update(new_clauses)
 
 
 if __name__ == '__main__':
-    beliefs = [Belief('A'), Belief('~B'), Belief('C >> B'), Belief('A >> C')]
+    beliefs = [Belief('A'), Belief('C >> B'), Belief('A >> C')]
     base = BeliefBase(beliefs)
     print(base)
     clauses = base.clausal_form()
