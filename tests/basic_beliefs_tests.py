@@ -31,3 +31,4 @@ class BasicRevisionTests(unittest.TestCase):
         self.assertIn(~(p | r), new_belief_base.beliefs)
         self.assertNotIn(q, new_belief_base.beliefs)
         self.assertNotIn(r, new_belief_base.beliefs)
+

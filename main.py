@@ -11,19 +11,19 @@ def main_menu():
     while True:
         res = input("Select option to continue...").strip()
         if int(res) == 1:
-            query = input("§ Enter discovery to expand ->")
+            query = input("§ Enter discovery to expand -> ").strip()
             god.expansion(query)
             print(f"\t<> Belief base expanded with {query}")
         elif int(res) == 2:
-            query = input("§ Enter statement to remove ->")
+            query = input("§ Enter statement to remove -> ").strip()
             god.contraction(query)
             print(f"\t<> Belief base contracted with {query}")
         elif int(res) == 3:
-            query = input("§ Enter reliable statement to revise ->")
+            query = input("§ Enter reliable statement to revise -> ").strip()
             god.revision(query)
             print(f"\t<> Belief base revised with {query}")
         elif int(res) == 4:
-            query = input("§ Enter statement to check entailment ->")
+            query = input("§ Enter statement to check entailment -> ").strip()
             if god.check(query):
                 print(f"\t<> The statement {query} is consistent with the belief base")
             else:

@@ -13,7 +13,7 @@ class Belief:
         self.cnf = to_cnf(formula)
 
     def __str__(self):
-        return f'Belief|{str(self.formula)}'
+        return f'Belief| {str(self.formula)}'
 
     def __eq__(self, other):
         return self.cnf == other.cnf

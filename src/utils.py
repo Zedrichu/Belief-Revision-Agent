@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Set, List
 
 from sympy.logic.boolalg import And, Or, Not, BooleanFunction
 
@@ -15,10 +15,16 @@ def is_literal(formula: BooleanFunction):
     return isinstance(formula, Not) or not isinstance(formula, (And, Or))
 
 
-def disjunction(literals: set) -> Optional[BooleanFunction]:
-    if len(literals) == 0:
-        return None
-    elif len(literals) == 1:
-        return literals.pop()
-    else:
-        return Or(*literals)
+def disjunction_series(terms: Set[BooleanFunction]) -> Optional[BooleanFunction]:
+    # Unpack positional arguments from iterable to form \/ disjunction of formulas
+    return Or(*terms) if terms else None
+
+
+def conjunction_series(terms: Set[BooleanFunction]) -> Optional[BooleanFunction]:
+    # Unpack positional arguments from iterable to form /\ conjunction of formulas
+    return And(*terms) if terms else None
+
+
+def dissociate(formula: BooleanFunction, operator) -> List[BooleanFunction]:
+    # Extract terms from formula based on top-level operator
+    return list(formula.args) if isinstance(formula, operator) else [formula]
