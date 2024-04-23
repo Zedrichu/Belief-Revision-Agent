@@ -33,11 +33,23 @@ class Clause:
         """
         resolvents = set()
         for i in c1.literals:
-            for j in c2.literals:
-                if i == Not(j) or Not(i) == j:
-                    # Clashing pair of literals found in clauses
-                    tmp1 = c1.literals.difference({i})
-                    tmp2 = c2.literals.difference({j})
-                    resolvents.add(Clause(tmp1.union(tmp2)))
-        #TODO: Remove trivial clauses from resolvents (l and ~l found in the same clause)
+            # Otherwise if it doesn't work reliably
+            # for j in c2.literals:
+            #     if i == Not(j) or Not(i) == j:
+            if Not(i) in c2.literals:
+                # print(f'Found clashing literals: {i} and {Not(i)}')
+                # Clashing pair of literals found in clauses
+                tmp1 = c1.literals.difference({i})
+                tmp2 = c2.literals.difference({Not(i)})
+                resolvents.add(Clause(tmp1.union(tmp2)))
+
+        # Remove trivial clauses from resolvents
+        # ex. l and ~l found in the same clause
+        tmp = resolvents.copy()
+        for resolvent in tmp:
+            for literal in resolvent.literals:
+                if Not(literal) in resolvent.literals:
+                    resolvents.remove(resolvent)
+                    break
+
         return resolvents

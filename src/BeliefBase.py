@@ -17,6 +17,9 @@ class BeliefBase:
             for belief in beliefs:
                 self.add_belief(belief)
 
+    def get_beliefs(self):
+        return self._beliefs
+
     def add_belief(self, belief: Belief):
         # Probably we should also assign how old the belief is
         self._beliefs.append(belief)

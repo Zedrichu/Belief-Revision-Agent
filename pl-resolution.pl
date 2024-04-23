@@ -4,8 +4,6 @@
 % Propositional resolution
 %
 
-:- ensure_loaded(logic).
-
 resolution(XFml) :-
   NegFml = ~XFml,
   write(NegFml), nl,

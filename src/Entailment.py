@@ -1,5 +1,5 @@
 import copy
-from sympy import symbols
+from sympy import symbols, to_cnf
 
 from Clause import Clause
 from utils import *
@@ -7,14 +7,14 @@ from Belief import Belief
 from BeliefBase import BeliefBase
 
 
-def entails(premise_base, statement) -> bool:
+def entails(premise_base: BeliefBase, statement: str) -> bool:
     """
     Entailment (BB ⊨ φ) checking using resolution refutation - proving BB ∧ ¬φ is unsatisfiable
     :param premise_base: belief base considered as the premise
     :param statement: statement to be entailed
     :return: boolean value if the statement is entailed by the premise base
     """
-    return resolution(premise_base, statement)
+    return resolution(premise_base, to_cnf(statement))
 
 """
 Propositional logic resolution pseudoalgorithm
@@ -71,23 +71,5 @@ def resolution(base: BeliefBase, alpha: BooleanFunction):
 
 
 if __name__ == '__main__':
-    # Test the example from the slides (Robert and the exam)
-    beliefs = [Belief('(R >> P | L) & ((P | L) >> R)'), Belief('~R')]
-    base = BeliefBase(beliefs)
-    print(base)
-    clauses = base.clausal_form()
-    for clause in clauses:
-        print(clause)
-    c1 = clauses.pop()
-    c2 = clauses.pop()
-    res = Clause.resolve(c1, c2)
-    if res is not None:
-        for r in res:
-            print(r)
-    print(resolution(base, ~symbols('P')))
     # Test that the empty clause is found in the set of clauses
     assert Clause.empty_clause() in {Clause.empty_clause()}
-    # Test that
-    for r in Clause.resolve(Clause({'A', 'B'}), Clause({'A', Not('B')})):
-        print(r)
-    pass
