@@ -24,8 +24,8 @@ class Agent:
         self._belief_base.update_entrenchment()
 
         # # # Ignore contradictions - affect belief base consistency
-        #if not entails(BeliefBase([]), '~' + phi):
-        #     return self._belief_base
+        if not entails(BeliefBase([]), '~(' + phi + ')'):
+            return self._belief_base
 
         # Ignore tautologies - automatically included in belief sets
         # Tautologies bring no inference power to the belief base
