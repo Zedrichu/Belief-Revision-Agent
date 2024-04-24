@@ -1,5 +1,5 @@
 from itertools import combinations
-from typing import Set
+from typing import Set, List
 import numpy as np
 from sympy import symbols
 from sympy.logic.boolalg import to_cnf
@@ -11,6 +11,7 @@ from Entailment import entails
 
 class Agent:
     _belief_base: BeliefBase
+    HYPER = 0.7
 
     def __init__(self, belief_base: BeliefBase):
         self._belief_base = belief_base
@@ -38,18 +39,23 @@ class Agent:
         return self._belief_base
 
     @staticmethod
-    def selection_function(remainder_set: Set[frozenset[Belief]]) -> frozenset[Belief]:
+    def selection_function(remainder_set: Set[frozenset[Belief]]) -> List[frozenset[Belief]]:
         if len(remainder_set) == 0:
-            return frozenset()
+            return [frozenset()]
 
         def accumulator(remainder: frozenset[Belief]):
             return sum([b.priority for b in remainder])
 
         list_remainders = list(remainder_set)
 
-        # Select the most plausible remainder
-        max_entrenched = np.argmax([accumulator(rem) for rem in list_remainders])
-        return list_remainders[max_entrenched]
+        # Sort the remainders by entrenchment in decreasing order (most entrenched first)
+        list_remainders.sort(key=lambda x: accumulator(x), reverse=True)
+        pivot = accumulator(list_remainders[0]) * Agent.HYPER # Maxi-choice threshold
+        return [r for r in list_remainders if accumulator(r) >= pivot]
+
+        # # Select the most plausible remainder
+        # max_entrenched = np.argmax([accumulator(rem) for rem in list_remainders])
+        # return [list_remainders[max_entrenched]]
 
     def contraction(self, phi: str) -> BeliefBase:
         """
@@ -63,9 +69,21 @@ class Agent:
         if entails(BeliefBase([]), phi):
             return self._belief_base
 
+        # Compute the remainder set for the contraction BB ⊥ φ
         remainder_set = self.remainder_set(self._belief_base, phi)
-        remainder = self.selection_function(remainder_set)
-        contracted_base = BeliefBase(list(remainder))
+        # Apply the selection function to the remainder set
+        entrenched_remainders = self.selection_function(remainder_set)
+
+        # Perform partial meet (kernel) contraction on selected remainders
+        kernel = set()
+        for rem in entrenched_remainders:
+            kernel = kernel.intersection(rem)
+
+        # Default to the most plausible remainder (maxi-choice contraction) if partial meet is empty
+        if len(kernel) == 0 and len(entrenched_remainders) > 0:
+            kernel = entrenched_remainders[0]
+
+        contracted_base = BeliefBase(list(kernel))
         self._belief_base = contracted_base
         return self._belief_base
 
@@ -120,7 +138,7 @@ class Agent:
         :param query: the statement to be checked in string
         :return: boolean - consistent or inconsistent
         """
-        return not entails(self._belief_base, '~'+query)
+        return not entails(self._belief_base, '~' + query)
 
     def show_belief_base(self):
         print(self._belief_base)
@@ -143,4 +161,3 @@ if __name__ == '__main__':
     god = Agent(base)
     print(god.revision('~q'))
     pass
-
