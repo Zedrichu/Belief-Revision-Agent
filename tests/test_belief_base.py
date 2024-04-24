@@ -6,7 +6,7 @@ from Entailment import entails
 
 
 class BeliefBaseTests(unittest.TestCase):
-    def test_foo(self):
+    def test_resolution_basic_contradiction(self):
         sut = BeliefBase([Belief('p'), Belief('~p')])
         actual = sut.resolution()
         self.assertTrue(actual)
@@ -17,4 +17,4 @@ class BeliefBaseTests(unittest.TestCase):
         self.assertFalse(actual)
 
     def test_for(self):
-        assert entails(BeliefBase([]), 'p | ~p')
+        self.assertTrue(entails(BeliefBase([]), 'p | ~p'))

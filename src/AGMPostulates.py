@@ -8,11 +8,11 @@ import copy
 class AGMPostulates:
     """
     Use the AGM postulates to test your algorithm:
-        - Success postulate
-        - Inclusion postulate
-        - Vacuity postulate
-        - Consistency
-        - Extensionality
+        - Success postulate (success)
+        - Inclusion postulate (inclusion)
+        - Vacuity postulate (vacuity)
+        - Consistency postulate (consistency)
+        - Extensionality postulate (extensionality)
     """
     @staticmethod
     def success(belief_base: BeliefBase, phi: str):
