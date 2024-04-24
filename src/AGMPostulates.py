@@ -5,36 +5,42 @@ from Belief import Belief
 class AGMPostulates:
 
     @staticmethod
-    def closure(self, belief_base: BeliefBase, phi: Belief):
+    def closure(belief_base: BeliefBase, phi: Belief):
         """
         B * φ = Cn(B * φ)
         """
         return True
 
-    def success(self):
+    @staticmethod
+    def success(belief_base: BeliefBase, phi: Belief):
         """
         p ∈ B * φ
         """
         return True
 
-    def inclusion(self):
+    @staticmethod
+    def inclusion(belief_base: BeliefBase, phi: Belief):
         """
         B * φ ⊆ B + φ
         """
-        return True
+        belief_base.add_belief(phi)
+        return phi in belief_base.get_beliefs()
 
-    def vacuity(self):
+    @staticmethod
+    def vacuity(belief_base: BeliefBase, phi: Belief):
         """
         If ¬φ ∉ B, then * φ = B + φ
         """
         return True
 
+    @staticmethod
     def consistency(self):
         """
         B * φ is consistent if φ is consistent
         """
         return True
 
+    @staticmethod
     def extensionality(self):
         """
         If (φ ↔ φ) ∈ Cn(∅), then B * φ = B * φ

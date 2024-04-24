@@ -21,10 +21,11 @@ class Agent:
         :param phi: the statement to be revised in string format
         :return: resulting belief base
         """
-        phi_cnf = to_cnf(phi)
+        self._belief_base.update_entrenchment()
+
         # Apply Levi's identity for the revision operator to the belief base (B * φ = (B ÷ ¬φ) + φ)
-        self._belief_base = self.contraction(~phi_cnf)
-        self._belief_base = self.expansion(phi_cnf)
+        self._belief_base = self.contraction('~'+phi)
+        self._belief_base = self.expansion(phi)
         return self._belief_base
 
     @staticmethod
@@ -47,6 +48,7 @@ class Agent:
         :param phi: the statement to be contracted in string format
         :return: resulting belief base
         """
+        self._belief_base.update_entrenchment()
 
         # If phi is a tautology, return the full belief base
         if entails(BeliefBase([]), phi):
@@ -65,6 +67,7 @@ class Agent:
         :return: resulting belief base
         """
         new_belief = Belief(phi)
+        self._belief_base.update_entrenchment()
 
         # Verify if the belief is already implied the belief base
         if entails(self._belief_base, phi):
@@ -115,16 +118,20 @@ class Agent:
 
 
 if __name__ == '__main__':
-    beliefs = [Belief('p'), Belief('p | q'), Belief('p & q'), Belief('(p >> q) & (q >> p)')]
+    # beliefs = [Belief('p'), Belief('p | q'), Belief('p & q'), Belief('(p >> q) & (q >> p)')]
+    # base = BeliefBase(beliefs)
+    # print(base)
+    # god = Agent(base)
+    # rem = Agent.remainder_set(base, 'p')
+    # for r in rem:
+    #     for b in r:
+    #         print(b)
+    # base.update_entrenchment()
+    # # selected = Agent.selection_function(rem)
+    # print(god.contraction('p'))
+    beliefs = [Belief('p'), Belief('q'), Belief('p >> q')]
     base = BeliefBase(beliefs)
-    print(base)
     god = Agent(base)
-    rem = Agent.remainder_set(base, 'p')
-    for r in rem:
-        for b in r:
-            print(b)
-    base.update_entrenchment()
-    # selected = Agent.selection_function(rem)
-    print(god.contraction('p'))
+    print(god.revision('~q'))
     pass
 
