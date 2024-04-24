@@ -1,5 +1,8 @@
+from itertools import combinations
+from typing import Set
+import numpy as np
 from sympy import symbols
-from sympy.logic.boolalg import BooleanFunction, to_cnf
+from sympy.logic.boolalg import to_cnf
 
 from BeliefBase import BeliefBase
 from Belief import Belief
@@ -24,21 +27,36 @@ class Agent:
         self._belief_base = self.expansion(phi_cnf)
         return self._belief_base
 
+    @staticmethod
+    def selection_function(remainder_set: Set[frozenset[Belief]]) -> frozenset[Belief]:
+        if len(remainder_set) == 0:
+            return frozenset()
+
+        def accumulator(remainder: frozenset[Belief]):
+            return sum([b.priority for b in remainder])
+
+        list_remainders = list(remainder_set)
+
+        # Select the most plausible remainder
+        max_entrenched = np.argmax([accumulator(rem) for rem in list_remainders])
+        return list_remainders[max_entrenched]
+
     def contraction(self, phi: str) -> BeliefBase:
         """
         Contraction operator for belief base BB ÷ φ
         :param phi: the statement to be contracted in string format
         :return: resulting belief base
         """
-        neg_cnf = to_cnf(phi)
-        contracted_base = BeliefBase()
-        print(neg_cnf)
 
-        # #for belief in self._belief_base.get_beliefs():
-        # #        if belief == neg_cnf
-        #
-        # contracted_base.beliefs = set(list(filter(lambda b: not (b == phi), self._belief_base.beliefs)))
-        # return contracted_base
+        # If phi is a tautology, return the full belief base
+        if entails(BeliefBase([]), phi):
+            return self._belief_base
+
+        remainder_set = self.remainder_set(self._belief_base, phi)
+        remainder = self.selection_function(remainder_set)
+        contracted_base = BeliefBase(list(remainder))
+        self._belief_base = contracted_base
+        return self._belief_base
 
     def expansion(self, phi: str) -> BeliefBase:
         """
@@ -58,34 +76,55 @@ class Agent:
 
         return self._belief_base
 
-    def check(self, query: str):
+    @staticmethod
+    def remainder_set(bbase: BeliefBase, phi: str) -> Set[frozenset[Belief]]:
+        remainder = set()
+        maximal_inclusion = False
+        beliefs = bbase.get_beliefs()
+        for depth in range(len(beliefs), 0, -1):
+            for subset in combinations(beliefs, depth):
+                belief_base = BeliefBase(list(subset))
+
+                if not entails(belief_base, phi):
+                    remainder.add(frozenset(subset))
+                    maximal_inclusion = True
+
+            if maximal_inclusion:
+                break
+
+        return remainder
+
+    def check_entailment(self, query: str):
         """
         Verify consistency of a statement with the belief base (entailment)
         :param query: the statement to be checked in string format
-        :return: resulting the belief state
+        :return: boolean - entailed or not
         """
         return entails(self._belief_base, query)
+
+    def check_consistent(self, query: str):
+        """
+        Verify consistency of a statement with the belief base (refutation entailment)
+        :param query: the statement to be checked in string
+        :return: boolean - consistent or inconsistent
+        """
+        return not entails(self._belief_base, '~'+query)
 
     def show_belief_base(self):
         print(self._belief_base)
 
 
 if __name__ == '__main__':
-    # Create the initial belief base in a Agent
-    p, q, r = symbols('p, q, r')
-    beliefs = [Belief(p), Belief(q), Belief(r)]
-    belief_base = BeliefBase(beliefs)
-    agent = Agent(belief_base)
-
-    # Do new learning
-    new_knowledge = "~(q | r)"
-    new_belief_base = agent.revision(new_knowledge)
-
-    #beliefs = [Belief('A >> B'), Belief('A')]
-    #base = BeliefBase(beliefs)
-    #agent = Agent(base)
-    #agent.show_belief_base()
-    #agent.expansion('B')
-    #agent.show_belief_base()
+    beliefs = [Belief('p'), Belief('p | q'), Belief('p & q'), Belief('(p >> q) & (q >> p)')]
+    base = BeliefBase(beliefs)
+    print(base)
+    god = Agent(base)
+    rem = Agent.remainder_set(base, 'p')
+    for r in rem:
+        for b in r:
+            print(b)
+    base.update_entrenchment()
+    # selected = Agent.selection_function(rem)
+    print(god.contraction('p'))
     pass
 
