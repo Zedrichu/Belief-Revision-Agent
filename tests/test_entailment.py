@@ -15,16 +15,10 @@ class BasicRevisionTests(unittest.TestCase):
         # Test the example from the slides (Robert and the exam)
         beliefs = [Belief('(R >> P | L) & ((P | L) >> R)'), Belief('~R')]
         base = BeliefBase(beliefs)
-        print(base)
         clauses = base.clausal_form()
-        for clause in clauses:
-            print(clause)
         c1 = clauses.pop()
         c2 = clauses.pop()
         res = Clause.resolve(c1, c2)
-        if res is not None:
-            for r in res:
-                print(r)
         self.assertTrue(entails(base, '~P'))
 
     def test_case_trivial_clauses(self):

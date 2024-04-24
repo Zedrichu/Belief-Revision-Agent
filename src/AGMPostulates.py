@@ -1,6 +1,5 @@
 from Agent import Agent
 from BeliefBase import BeliefBase
-from Belief import Belief
 from Entailment import entails
 import copy
 
@@ -14,6 +13,7 @@ class AGMPostulates:
         - Consistency postulate (consistency)
         - Extensionality postulate (extensionality)
     """
+
     @staticmethod
     def success(belief_base: BeliefBase, phi: str):
         """
@@ -49,8 +49,8 @@ class AGMPostulates:
         """
         initial_belief_base = copy.copy(belief_base)
 
-        if Belief('~' + phi) not in initial_belief_base:
-            return False
+        if entails(belief_base, f'~({phi})'):
+            return True
 
         agent = Agent(initial_belief_base)
         expanded_base = agent.expansion(phi)
@@ -67,16 +67,19 @@ class AGMPostulates:
         """
         B * φ is consistent if φ is consistent
         """
-        agent = Agent(belief_base)
-        return agent.check_consistent(phi)
+        if entails(BeliefBase([]), f'~({phi})'):
+            return True
 
+        agent = Agent(belief_base)
+        revised_base = agent.revision(phi)
+        return not revised_base.resolution()
 
     @staticmethod
     def extensionality(belief_base: BeliefBase, phi: str, psi: str):
         """
         If (φ ↔ φ) ∈ Cn(∅), then B * φ = B * φ
         """
-        return entails(belief_base, phi + '>>' + psi + '&' + psi + '>>' + phi)
+        return entails(belief_base, f'{phi} >> {psi} & {psi} >> {phi}')
 
     # It needs to in tests, i agree.
     # But is should be checked all the time when doing revision and so

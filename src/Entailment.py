@@ -14,7 +14,7 @@ def entails(premise_base: BeliefBase, statement: str) -> bool:
     """
     tmp_base = copy.copy(premise_base)
     # Refute the query belief - negation of the statement
-    tmp_base.add_belief(Belief('~(' + statement + ")"))
+    tmp_base.add_belief(Belief(f'~({statement})'))
 
     return tmp_base.resolution()
 
