@@ -19,8 +19,8 @@ class Clause:
     def __hash__(self):
         return hash(self.literals)
 
-    @staticmethod
-    def empty_clause():
+    @classmethod
+    def empty_clause(cls):
         return Clause(set())
 
     @staticmethod
@@ -32,16 +32,17 @@ class Clause:
         :return: resolvent set of clauses
         """
         resolvents = set()
+        # Iterate over literals to find clashing pairs
         for i in c1.literals:
-            # Otherwise if it doesn't work reliably
-            # for j in c2.literals:
-            #     if i == Not(j) or Not(i) == j:
             if Not(i) in c2.literals:
-                # print(f'Found clashing literals: {i} and {Not(i)}')
                 # Clashing pair of literals found in clauses
                 tmp1 = c1.literals.difference({i})
                 tmp2 = c2.literals.difference({Not(i)})
+                resolved_clause = Clause(tmp1.union(tmp2))
+                if resolved_clause == Clause.empty_clause():
+                    return {resolved_clause}
                 resolvents.add(Clause(tmp1.union(tmp2)))
+                # print(f'Found clashing literals: {i} and {Not(i)}')
 
         # Remove trivial clauses from resolvents
         # ex. l and ~l found in the same clause
