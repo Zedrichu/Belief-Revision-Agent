@@ -1,9 +1,6 @@
 import copy
 
-from sympy import to_cnf
-
 from Clause import Clause
-from utils import *
 from Belief import Belief
 from BeliefBase import BeliefBase
 

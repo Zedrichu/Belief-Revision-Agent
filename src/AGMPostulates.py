@@ -1,63 +1,82 @@
+from Agent import Agent
 from BeliefBase import BeliefBase
 from Belief import Belief
+from Entailment import entails
+import copy
 
 
 class AGMPostulates:
+    """
+    Use the AGM postulates to test your algorithm:
+        - Success postulate
+        - Inclusion postulate
+        - Vacuity postulate
+        - Consistency
+        - Extensionality
+    """
+    @staticmethod
+    def success(belief_base: BeliefBase, phi: str):
+        """
+        φ ∈ B * φ
+        """
+        initial_belief_base = copy.copy(belief_base)
+
+        agent = Agent(initial_belief_base)
+        agent.revision(phi)
+        return agent.check_entailment(phi)
 
     @staticmethod
-    def closure(belief_base: BeliefBase, phi: Belief):
-        """
-        B * φ = Cn(B * φ)
-        """
-        return True
-
-    @staticmethod
-    def success(belief_base: BeliefBase, phi: Belief):
-        """
-        p ∈ B * φ
-        """
-        return True
-
-    @staticmethod
-    def inclusion(belief_base: BeliefBase, phi: Belief):
+    def inclusion(belief_base: BeliefBase, phi: str):
         """
         B * φ ⊆ B + φ
         """
-        belief_base.add_belief(phi)
-        return phi in belief_base.get_beliefs()
+        initial_belief_base = copy.copy(belief_base)
+
+        agent = Agent(initial_belief_base)
+        expanded_base = agent.expansion(phi)
+        expanded_beliefs = expanded_base.get_beliefs()
+
+        agent = Agent(initial_belief_base)
+        revised_base = agent.revision(phi)
+        revised_beliefs = revised_base.get_beliefs()
+
+        return revised_beliefs.issubset(expanded_beliefs)
 
     @staticmethod
-    def vacuity(belief_base: BeliefBase, phi: Belief):
+    def vacuity(belief_base: BeliefBase, phi: str):
         """
-        If ¬φ ∉ B, then * φ = B + φ
+        If ¬φ ∉ B, then B * φ = B + φ
         """
-        return True
+        initial_belief_base = copy.copy(belief_base)
+
+        if Belief('~' + phi) not in initial_belief_base:
+            return False
+
+        agent = Agent(initial_belief_base)
+        expanded_base = agent.expansion(phi)
+        expanded_beliefs = expanded_base.get_beliefs()
+
+        agent = Agent(initial_belief_base)
+        revised_base = agent.revision(phi)
+        revised_beliefs = revised_base.get_beliefs()
+
+        return revised_beliefs == expanded_beliefs
 
     @staticmethod
-    def consistency(self):
+    def consistency(belief_base: BeliefBase, phi: str):
         """
         B * φ is consistent if φ is consistent
         """
-        return True
+        agent = Agent(belief_base)
+        return agent.check_consistent(phi)
+
 
     @staticmethod
-    def extensionality(self):
+    def extensionality(belief_base: BeliefBase, phi: str, psi: str):
         """
         If (φ ↔ φ) ∈ Cn(∅), then B * φ = B * φ
         """
-        return True
-
-    def super_expansion(self):
-        """
-        B * (p & q) ⊆ (K * p) + q
-        """
-        return True
-
-    def sub_expansion(self):
-        """
-        If ¬q ∉ Cn(K * p) then (K * p) + q ⊆ K * (p & q)
-        """
-        pass
+        return entails(belief_base, phi + '>>' + psi + '&' + psi + '>>' + phi)
 
     # It needs to in tests, i agree.
     # But is should be checked all the time when doing revision and so

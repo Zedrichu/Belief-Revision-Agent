@@ -23,6 +23,15 @@ class Agent:
         """
         self._belief_base.update_entrenchment()
 
+        # # # Ignore contradictions - affect belief base consistency
+        #if not entails(BeliefBase([]), '~' + phi):
+        #     return self._belief_base
+
+        # Ignore tautologies - automatically included in belief sets
+        # Tautologies bring no inference power to the belief base
+        if entails(BeliefBase([]), phi):
+            return self._belief_base
+
         # Apply Levi's identity for the revision operator to the belief base (B * φ = (B ÷ ¬φ) + φ)
         self._belief_base = self.contraction('~'+phi)
         self._belief_base = self.expansion(phi)

@@ -7,7 +7,7 @@ from Belief import Belief
 from BeliefBase import BeliefBase
 from Agent import Agent
 from Clause import Clause
-from Entailment import resolution
+from Entailment import entails
 
 
 class BasicRevisionTests(unittest.TestCase):
@@ -25,8 +25,7 @@ class BasicRevisionTests(unittest.TestCase):
         if res is not None:
             for r in res:
                 print(r)
-        # assert resolution(base, ~symbols('P'))
-        self.assertTrue(resolution(base, ~symbols('P')))
+        self.assertTrue(entails(base, '~P'))
 
     def test_case_trivial_clauses(self):
         # Test that after resolving clashing clauses the trivial resolvents are removed
@@ -36,21 +35,33 @@ class BasicRevisionTests(unittest.TestCase):
         self.assertTrue(len(res) == 0)
 
     def test_case_from_slides(self):
-        # Create the initial belief base in a Agent
-        p, q, r = symbols('p, q, r')
-        beliefs = [Belief(p), Belief(q), Belief(r)]
-        belief_base = BeliefBase(beliefs)
-        agent = Agent(belief_base)
+        # Lecture 9 page 32
+        belief_base = BeliefBase([Belief('p'), Belief('q'), Belief('r')])
+        sut = Agent(belief_base)
 
-        # Absorb new learning
-        new_knowledge = ~(q | r)
-        new_belief_base = agent.revision(new_knowledge)
+        new_beliefs = sut.revision('~(q | r)').get_beliefs()
 
-        # assert new_belief_base == {p, ~(q | r)}
-        new_beliefs = new_belief_base.get_beliefs()
-        self.assertIn(p, new_beliefs)
-        self.assertIn(~(p | r), new_beliefs)
-        self.assertNotIn(q, new_beliefs)
-        self.assertNotIn(r, new_beliefs)
+        self.assertIn(Belief('p'), new_beliefs)
+        self.assertIn(Belief('~(q | r)'), new_beliefs)
+        self.assertNotIn(Belief('q'), new_beliefs)
+        self.assertNotIn(Belief('r'), new_beliefs)
 
+    def test_basic_revision(self):
+        # Lecture 9 page 35
+        initial_beliefs = BeliefBase([Belief('p'), Belief('q'), Belief('p >> q')])
 
+        sut = Agent(initial_beliefs)
+        new_beliefs = sut.revision('~q').get_beliefs()
+
+        self.assertIn(Belief('p'), new_beliefs)
+        self.assertIn(Belief('~q'), new_beliefs)
+        self.assertNotIn(Belief('q'), new_beliefs)
+        self.assertNotIn(Belief('p >> q'), new_beliefs)
+
+    def test_basic_contradiction(self):
+        initial_beliefs = BeliefBase([Belief('p')])
+
+        sut = Agent(initial_beliefs)
+        new_beliefs = sut.revision('~p').get_beliefs()
+
+        self.assertIn(Belief('~p'), new_beliefs)
