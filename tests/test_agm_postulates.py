@@ -38,13 +38,18 @@ class AgmPostulatesTests(unittest.TestCase):
         belief_base = BeliefBase([])
         self.assertTrue(AGMPostulates.consistency(belief_base, 'p'))
 
-    def test_extensionality(self):
+    def test_extensionality_on_non_equivalent(self):
         belief_base = BeliefBase([Belief('p'), Belief('q')])
         self.assertTrue(AGMPostulates.extensionality(belief_base, phi='p', psi='q'))
 
-    # def test_extensionality_on_empty_belief_base(self):
-    #     belief_base = BeliefBase([])
-    #
-    #     actual = AGMPostulates.extensionality(belief_base, phi='~p', psi='~q')
-    #
-    #     self.assertTrue(actual)
+    def test_extensionality_on_non_equivalent_with_empty_belief_base(self):
+        belief_base = BeliefBase([])
+        self.assertTrue(AGMPostulates.extensionality(belief_base, phi='p', psi='q'))
+
+    def test_extensionality_on_equivalent_with_empty_belief_base(self):
+        belief_base = BeliefBase([])
+        self.assertTrue(AGMPostulates.extensionality(belief_base, phi='p >> q', psi='~p | q'))
+
+    def test_extensionality_on_equivalent(self):
+        belief_base = BeliefBase([Belief('p')])
+        self.assertTrue(AGMPostulates.extensionality(belief_base, phi='p >> q', psi='~p | q'))

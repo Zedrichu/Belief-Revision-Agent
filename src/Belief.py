@@ -45,4 +45,4 @@ class Belief:
         return self.cnf == other.cnf
 
     def __hash__(self):
-        return hash(self.formula) ^ hash(self.cnf)
+        return hash(self.cnf)

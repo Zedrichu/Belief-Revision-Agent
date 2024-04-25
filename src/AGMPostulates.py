@@ -25,7 +25,6 @@ class AGMPostulates:
 
         agent = Agent(initial_belief_base)
         agent.revision(phi)
-        # shouldn't we just check if phi belongs to the new belief base instead?
         return agent.check_entailment(phi)
 
     @staticmethod
@@ -77,17 +76,13 @@ class AGMPostulates:
         """
         If (φ ↔ ψ) ∈ Cn(∅), then B * φ = B * ψ
         """
-        return belief_base.entails(f'{phi} >> {psi} & {psi} >> {phi}')
+        if not BeliefBase([]).entails(f'{phi} >> {psi} & {psi} >> {phi}'):
+            return True
 
-    @staticmethod
-    def extensionality2(belief_base: BeliefBase, phi: str, psi: str):
-        """
-        If (φ ↔ ψ) ∈ Cn(∅), then B * φ = B * ψ
-        """
-        return belief_base.entails(f'{phi} >> {psi} & {psi} >> {phi}')
+        revision_with_phi = Agent(belief_base).revision(phi).get_beliefs()
+        revision_with_psi = Agent(belief_base).revision(psi).get_beliefs()
 
-# Define like a list of properties that hold and print that after
-# each revision [success, vacuity, recovery ✅❌]
+        return set(revision_with_phi) == set(revision_with_psi)
 
 
 def run_all_postulates(belief_base: BeliefBase, phi: str, psi: Optional[str] = None) -> Iterable[Tuple[str, bool]]:
