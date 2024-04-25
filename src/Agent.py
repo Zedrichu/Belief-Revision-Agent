@@ -38,25 +38,6 @@ class Agent:
         self._belief_base = self.expansion(phi)
         return self._belief_base
 
-    @staticmethod
-    def selection_function(remainder_set: Set[frozenset[Belief]]) -> List[frozenset[Belief]]:
-        if len(remainder_set) == 0:
-            return [frozenset()]
-
-        def accumulator(remainder: frozenset[Belief]):
-            return sum([b.priority for b in remainder])
-
-        list_remainders = list(remainder_set)
-
-        # Sort the remainders by entrenchment in decreasing order (most entrenched first)
-        list_remainders.sort(key=lambda x: accumulator(x), reverse=True)
-        pivot = accumulator(list_remainders[0]) * Agent.HYPER # Maxi-choice threshold
-        return [r for r in list_remainders if accumulator(r) >= pivot]
-
-        # # Select the most plausible remainder
-        # max_entrenched = np.argmax([accumulator(rem) for rem in list_remainders])
-        # return [list_remainders[max_entrenched]]
-
     def contraction(self, phi: str) -> BeliefBase:
         """
         Contraction operator for belief base BB ÷ φ
@@ -107,7 +88,37 @@ class Agent:
         return self._belief_base
 
     @staticmethod
+    def selection_function(remainder_set: Set[frozenset[Belief]]) -> List[frozenset[Belief]]:
+        """
+        Selection function γ utility used to perform the partial meet contraction based on entrenchment
+        :param remainder_set: the set of valid remainders to be selected from
+        :return: list of selected most entrenched remainders
+        """
+        if len(remainder_set) == 0:
+            return [frozenset()]
+
+        def accumulator(remainder: frozenset[Belief]):
+            return sum([b.priority for b in remainder])
+
+        list_remainders = list(remainder_set)
+
+        # Sort the remainders by entrenchment in decreasing order (most entrenched first)
+        list_remainders.sort(key=lambda x: accumulator(x), reverse=True)
+        pivot = accumulator(list_remainders[0]) * Agent.HYPER # Maxi-choice threshold
+        return [r for r in list_remainders if accumulator(r) >= pivot]
+
+        # # Select the most plausible remainder
+        # max_entrenched = np.argmax([accumulator(rem) for rem in list_remainders])
+        # return [list_remainders[max_entrenched]]
+
+    @staticmethod
     def remainder_set(bbase: BeliefBase, phi: str) -> Set[frozenset[Belief]]:
+        """
+        Compute the remainder set for the contraction BB ⊥ φ
+        :param bbase: the belief base to be contracted
+        :param phi: the statement to be contracted
+        :return: set of valid remainders C ⊆ BB, C ⊭ φ - set of sets of beliefs
+        """
         remainder = set()
         maximal_inclusion = False
         beliefs = bbase.get_beliefs()
@@ -145,19 +156,15 @@ class Agent:
 
 
 if __name__ == '__main__':
-    # beliefs = [Belief('p'), Belief('p | q'), Belief('p & q'), Belief('(p >> q) & (q >> p)')]
-    # base = BeliefBase(beliefs)
-    # print(base)
-    # god = Agent(base)
-    # rem = Agent.remainder_set(base, 'p')
-    # for r in rem:
-    #     for b in r:
-    #         print(b)
-    # base.update_entrenchment()
-    # # selected = Agent.selection_function(rem)
-    # print(god.contraction('p'))
-    beliefs = [Belief('p'), Belief('q'), Belief('p >> q')]
+    beliefs = [Belief('p'), Belief('p | q'), Belief('p & q'), Belief('(p >> q) & (q >> p)')]
     base = BeliefBase(beliefs)
+    print(base)
     god = Agent(base)
-    print(god.revision('~q'))
+    rem = Agent.remainder_set(base, 'p')
+    for r in rem:
+        for b in r:
+            print(b)
+    base.update_entrenchment()
+    # selected = Agent.selection_function(rem)
+    print(god.contraction('p'))
     pass
