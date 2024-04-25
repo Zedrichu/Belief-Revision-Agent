@@ -5,7 +5,7 @@ from sympy.logic.boolalg import Not
 from Belief import Belief
 from BeliefBase import BeliefBase
 from Clause import Clause
-from Entailment import entails
+from Resolution import resolution
 
 
 class BasicRevisionTests(unittest.TestCase):
@@ -17,7 +17,7 @@ class BasicRevisionTests(unittest.TestCase):
         c1 = clauses.pop()
         c2 = clauses.pop()
         res = Clause.resolve(c1, c2)
-        self.assertTrue(entails(base, '~P'))
+        self.assertTrue(base.entails('~P'))
 
     def test_case_trivial_clauses(self):
         # Test that after resolving clashing clauses the trivial resolvents are removed
@@ -28,13 +28,13 @@ class BasicRevisionTests(unittest.TestCase):
 
     def test_resolution_basic_contradiction(self):
         sut = BeliefBase([Belief('p'), Belief('~p')])
-        actual = sut.resolution()
+        actual = resolution(sut.clausal_form())
         self.assertTrue(actual)
 
     def test_resolution_with_no_contradiction(self):
         sut = BeliefBase([Belief('p | q')])
-        actual = sut.resolution()
+        actual = resolution(sut.clausal_form())
         self.assertFalse(actual)
 
     def test_entails(self):
-        self.assertTrue(entails(BeliefBase([]), 'p | ~p'))
+        self.assertTrue(BeliefBase([]).entails('p | ~p'))

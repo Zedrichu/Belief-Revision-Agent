@@ -1,4 +1,7 @@
+import copy
+
 from Clause import Clause
+from Resolution import resolution
 from utils import *
 from typing import List, Optional
 from src.Belief import Belief
@@ -28,7 +31,8 @@ class BeliefBase:
     def epistemic(belief: Belief) -> float:
         # Tautologies are most entrenched
         empty_base = BeliefBase([Belief('~'+belief.formula)])
-        if empty_base.resolution():
+        clauses = empty_base.clausal_form()
+        if resolution(clauses):
             return 1
 
         num_literals = len(belief.literals)
@@ -56,49 +60,18 @@ class BeliefBase:
             clausal_form.add(clause)
         return clausal_form
 
-    def resolution(self):
+    def entails(self, statement: str) -> bool:
         """
-        Resolution refutation algorithm for propositional logic
-        :return: bool
-
-        Pseudo-code:
-        clauses = set of clauses in CNF form of KB and ¬α
-        new = {}
-        while True:
-            for each pair of clauses Ci, Cj in clauses:
-                resolvents = resolve(Ci, Cj)
-                if resolvents contains the empty clause:
-                    return True
-                new = new ∪ resolvents
-            if new ⊆ clauses:
-                return False
-            clauses = clauses ∪ new
+        Entailment (BB ⊨ φ) checking by resolution refutation proof - proving BB ∧ ¬φ is unsatisfiable
+        :param statement: statement to be entailed
+        :return: boolean value if the statement is entailed by the premise base
         """
+        tmp_base = copy.copy(self)
+        # Refute the query belief - negation of the statement
+        tmp_base.add_belief(Belief(f'~({statement})'))
 
-        # Split the base into conjunctions of clauses - set of clauses
-        clauses = self.clausal_form()
-
-        # Apply resolution refutation
-        while True:
-            new_clauses = set()
-            # Attempt to resolve each pair of clauses
-            for clause1 in clauses:
-                for clause2 in clauses:
-                    # Set of all possible resolvents if clauses are clashing
-                    resolvents = Clause.resolve(clause1, clause2)
-                    # If the empty clause is found, the formula is entailed (refutation is unsatisfiable)
-                    if Clause.empty_clause() in resolvents:
-                        # Printout for debugging
-                        # for r in resolvents:
-                        #     print(r)
-                        return True
-                    # Add the resolvents to the new set of clauses
-                    new_clauses.update(resolvents)
-            # No new resolvent were found - formula is not entailed (refutation is satisfiable)
-            if new_clauses.issubset(clauses):
-                return False
-            # Union of the new resolvents with the set of clauses in the base
-            clauses.update(new_clauses)
+        # Transform assumption to clausal form & apply resolution
+        return resolution(tmp_base.clausal_form())
 
     def __str__(self):
         return (f'BeliefBase|\n\t'

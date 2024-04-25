@@ -1,12 +1,8 @@
 from itertools import combinations
 from typing import Set, List
-import numpy as np
-from sympy import symbols
-from sympy.logic.boolalg import to_cnf
 
 from BeliefBase import BeliefBase
 from Belief import Belief
-from Entailment import entails
 
 
 class Agent:
@@ -25,12 +21,12 @@ class Agent:
         self._belief_base.update_entrenchment()
 
         # # # Ignore contradictions - affect belief base consistency
-        if entails(BeliefBase([]), f'~({phi})'):
+        if BeliefBase([]).entails(f'~({phi})'):
             return self._belief_base
 
         # Ignore tautologies - automatically included in belief sets
         # Tautologies bring no inference power to the belief base
-        if entails(BeliefBase([]), phi):
+        if BeliefBase([]).entails(phi):
             return self._belief_base
 
         # Apply Levi's identity for the revision operator to the belief base (B * φ = (B ÷ ¬φ) + φ)
@@ -47,7 +43,7 @@ class Agent:
         self._belief_base.update_entrenchment()
 
         # If phi is a tautology, return the full belief base
-        if entails(BeliefBase([]), phi):
+        if BeliefBase([]).entails(phi):
             return self._belief_base
 
         # Compute the remainder set for the contraction BB ⊥ φ
@@ -78,7 +74,7 @@ class Agent:
         self._belief_base.update_entrenchment()
 
         # Verify if the belief is already implied the belief base
-        if entails(self._belief_base, phi):
+        if self._belief_base.entails(phi):
             return self._belief_base
 
         # Verify if the belief is already explicit in the belief base
@@ -126,7 +122,7 @@ class Agent:
             for subset in combinations(beliefs, depth):
                 belief_base = BeliefBase(list(subset))
 
-                if not entails(belief_base, phi):
+                if not belief_base.entails(phi):
                     remainder.add(frozenset(subset))
                     maximal_inclusion = True
 
@@ -141,7 +137,7 @@ class Agent:
         :param query: the statement to be checked in string format
         :return: boolean - entailed or not
         """
-        return entails(self._belief_base, query)
+        return self._belief_base.entails(query)
 
     def check_consistent(self, query: str):
         """
@@ -149,7 +145,7 @@ class Agent:
         :param query: the statement to be checked in string
         :return: boolean - consistent or inconsistent
         """
-        return not entails(self._belief_base, '~' + query)
+        return not self._belief_base.entails('~' + query)
 
     def show_belief_base(self):
         print(self._belief_base)

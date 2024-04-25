@@ -1,6 +1,6 @@
 from Agent import Agent
 from BeliefBase import BeliefBase
-from Entailment import entails
+from Resolution import resolution
 import copy
 
 
@@ -49,7 +49,7 @@ class AGMPostulates:
         """
         initial_belief_base = copy.copy(belief_base)
 
-        if entails(belief_base, f'~({phi})'):
+        if belief_base.entails(f'~({phi})'):
             return True
 
         agent = Agent(initial_belief_base)
@@ -67,19 +67,19 @@ class AGMPostulates:
         """
         B * φ is consistent if φ is consistent
         """
-        if entails(BeliefBase([]), f'~({phi})'):
+        if BeliefBase([]).entails(f'~({phi})'):
             return True
 
         agent = Agent(belief_base)
         revised_base = agent.revision(phi)
-        return not revised_base.resolution()
+        return not resolution(revised_base.clausal_form())
 
     @staticmethod
     def extensionality(belief_base: BeliefBase, phi: str, psi: str):
         """
         If (φ ↔ φ) ∈ Cn(∅), then B * φ = B * φ
         """
-        return entails(belief_base, f'{phi} >> {psi} & {psi} >> {phi}')
+        return belief_base.entails(f'{phi} >> {psi} & {psi} >> {phi}')
 
     # It needs to in tests, i agree.
     # But is should be checked all the time when doing revision and so
