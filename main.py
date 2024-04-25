@@ -2,6 +2,7 @@ import os
 
 from sympy import SympifyError
 
+from AGMPostulates import AGMPostulates, run_all_postulates, display_agm_postulates
 from BeliefBase import BeliefBase
 from Agent import Agent
 
@@ -55,7 +56,16 @@ def main_menu():
             except SympifyError as e:
                 print(f"Invalid input: {e}. Operation failed, returning to main menu...")
         elif int(res) == 5:
-            god.show_belief_base()
+            try:
+                phi = input("§ Enter φ -> ").strip()
+                psi = input("§ Enter optional ψ (for extensionality) -> ").strip()
+                psi = psi if psi else None
+                print("# Testing the AGM Postulates...")
+                display_agm_postulates(god.get_belief_base(), phi, psi)
+            except SympifyError as e:
+                print(f"Invalid input: {e}. Operation failed, returning to main menu...")
+        elif int(res) == 6:
+            print(god.get_belief_base())
         else:
             print("Exiting... Thank you for using the agent!")
             break
@@ -68,8 +78,9 @@ def print_help():
     print("2. Remove a statement from the belief base - contraction BB ÷ φ")
     print("3. Update the belief base with a reliable statement - revision BB * φ")
     print("4. Check if a statement is consistent with the belief base - entailment BB ⊨ φ")
-    print("5. Query the state of the belief base BB")
-    print("6. Exit the agent")
+    print("5. Run the postulates")
+    print("6. Query the state of the belief base BB")
+    print("7. Exit the agent")
     print("_______________________________________________________")
     print("Propositional logic supports the following operators: &, |, ~, >>, <<")
 

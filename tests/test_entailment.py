@@ -36,5 +36,23 @@ class BasicRevisionTests(unittest.TestCase):
         actual = resolution(sut.clausal_form())
         self.assertFalse(actual)
 
-    def test_entails(self):
+    def test_entails_for_an_empty_belief_base(self):
         self.assertTrue(BeliefBase([]).entails('p | ~p'))
+
+    def test_entails_for_a_contradiction(self):
+        self.assertFalse(BeliefBase([Belief('p')]).entails('~p'))
+
+    def test_entails_for_non_existing_beliefs(self):
+        self.assertFalse(BeliefBase([Belief('p')]).entails('q'))
+
+    def test_entails_for_a_simple_relationship(self):
+        self.assertTrue(BeliefBase([Belief('p'), Belief('p >> q')]).entails('q'))
+
+    def test_entails_for_on_an_empty_belief_base_with_an_inconsistent_belief(self):
+        self.assertFalse(BeliefBase([]).entails('p & ~p'))
+
+    def test_entails_for_on_an_empty_belief_base_with_a_negated_inconsistent_belief(self):
+        self.assertTrue(BeliefBase([]).entails('~(p & ~p)'))
+
+    def test_entails_for_on_an_empty_belief_base_with_a_consistent_negated_belief(self):
+        self.assertFalse(BeliefBase([]).entails('~(p | ~p)'))

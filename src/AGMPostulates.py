@@ -1,3 +1,5 @@
+from typing import Dict, Tuple, Iterable, Optional
+
 from Agent import Agent
 from BeliefBase import BeliefBase
 from Resolution import resolution
@@ -23,6 +25,7 @@ class AGMPostulates:
 
         agent = Agent(initial_belief_base)
         agent.revision(phi)
+        # shouldn't we just check if phi belongs to the new belief base instead?
         return agent.check_entailment(phi)
 
     @staticmethod
@@ -40,7 +43,7 @@ class AGMPostulates:
         revised_base = agent.revision(phi)
         revised_beliefs = revised_base.get_beliefs()
 
-        return revised_beliefs.issubset(expanded_beliefs)
+        return set(revised_beliefs).issubset(expanded_beliefs)
 
     @staticmethod
     def vacuity(belief_base: BeliefBase, phi: str):
@@ -52,15 +55,10 @@ class AGMPostulates:
         if belief_base.entails(f'~({phi})'):
             return True
 
-        agent = Agent(initial_belief_base)
-        expanded_base = agent.expansion(phi)
-        expanded_beliefs = expanded_base.get_beliefs()
+        expanded_beliefs = Agent(initial_belief_base).expansion(phi).get_beliefs()
+        revised_beliefs = Agent(initial_belief_base).revision(phi).get_beliefs()
 
-        agent = Agent(initial_belief_base)
-        revised_base = agent.revision(phi)
-        revised_beliefs = revised_base.get_beliefs()
-
-        return revised_beliefs == expanded_beliefs
+        return set(revised_beliefs) == set(expanded_beliefs)
 
     @staticmethod
     def consistency(belief_base: BeliefBase, phi: str):
@@ -77,13 +75,32 @@ class AGMPostulates:
     @staticmethod
     def extensionality(belief_base: BeliefBase, phi: str, psi: str):
         """
-        If (φ ↔ φ) ∈ Cn(∅), then B * φ = B * φ
+        If (φ ↔ ψ) ∈ Cn(∅), then B * φ = B * ψ
         """
         return belief_base.entails(f'{phi} >> {psi} & {psi} >> {phi}')
 
-    # It needs to in tests, i agree.
-    # But is should be checked all the time when doing revision and so
-    # Like a verify
+    @staticmethod
+    def extensionality2(belief_base: BeliefBase, phi: str, psi: str):
+        """
+        If (φ ↔ ψ) ∈ Cn(∅), then B * φ = B * ψ
+        """
+        return belief_base.entails(f'{phi} >> {psi} & {psi} >> {phi}')
 
 # Define like a list of properties that hold and print that after
 # each revision [success, vacuity, recovery ✅❌]
+
+
+def run_all_postulates(belief_base: BeliefBase, phi: str, psi: Optional[str] = None) -> Iterable[Tuple[str, bool]]:
+    yield 'success', AGMPostulates.success(belief_base, phi)
+    yield 'inclusion', AGMPostulates.inclusion(belief_base, phi)
+    yield 'vacuity', AGMPostulates.vacuity(belief_base, phi)
+    yield 'consistency', AGMPostulates.consistency(belief_base, phi)
+    if psi is not None:
+        yield 'extensionality', AGMPostulates.extensionality(belief_base, phi, psi)
+
+
+def display_agm_postulates(belief_base: BeliefBase, phi: str, psi: Optional[str]):
+    postulate_results = run_all_postulates(belief_base, phi, psi)
+    for postulate_name, postulate_result in postulate_results:
+        marker = '?' if postulate_result is None else ('✅' if postulate_result else '❌')
+        print(f'{postulate_name}: {marker}')

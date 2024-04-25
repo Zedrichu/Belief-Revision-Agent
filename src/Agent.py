@@ -1,3 +1,4 @@
+import copy
 from itertools import combinations
 from typing import Set, List
 
@@ -10,7 +11,7 @@ class Agent:
     HYPER = 0.7
 
     def __init__(self, belief_base: BeliefBase):
-        self._belief_base = belief_base
+        self._belief_base = copy.copy(belief_base)
 
     def revision(self, phi: str) -> BeliefBase:
         """
@@ -147,8 +148,9 @@ class Agent:
         """
         return not self._belief_base.entails('~' + query)
 
-    def show_belief_base(self):
-        print(self._belief_base)
+    def get_belief_base(self) -> BeliefBase:
+        return copy.copy(self._belief_base)
+
 
 
 if __name__ == '__main__':
