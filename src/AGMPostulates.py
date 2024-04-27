@@ -1,9 +1,9 @@
-from typing import Dict, Tuple, Iterable, Optional
-
-from Agent import Agent
-from BeliefBase import BeliefBase
-from Resolution import resolution
 import copy
+from typing import Tuple, Iterable, Optional
+
+from src.Agent import Agent
+from src.BeliefBase import BeliefBase
+from src.Resolution import resolution
 
 
 class AGMPostulates:

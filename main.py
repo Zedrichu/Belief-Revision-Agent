@@ -2,9 +2,9 @@ import os
 
 from sympy import SympifyError
 
-from AGMPostulates import AGMPostulates, run_all_postulates, display_agm_postulates
-from BeliefBase import BeliefBase
-from Agent import Agent
+from src.AGMPostulates import display_agm_postulates
+from src.Agent import Agent
+from src.BeliefBase import BeliefBase
 
 belief_base = BeliefBase()
 god = Agent(belief_base)

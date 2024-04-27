@@ -1,8 +1,8 @@
 import unittest
 
-from Agent import Agent
-from Belief import Belief
-from BeliefBase import BeliefBase
+from src.Agent import Agent
+from src.Belief import Belief
+from src.BeliefBase import BeliefBase
 
 
 class RevisionTests(unittest.TestCase):

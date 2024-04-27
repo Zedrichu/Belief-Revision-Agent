@@ -2,10 +2,10 @@ import unittest
 
 from sympy.logic.boolalg import Not
 
-from Belief import Belief
-from BeliefBase import BeliefBase
-from Clause import Clause
-from Resolution import resolution
+from src.Belief import Belief
+from src.BeliefBase import BeliefBase
+from src.Clause import Clause
+from src.Resolution import resolution
 
 
 class BasicRevisionTests(unittest.TestCase):

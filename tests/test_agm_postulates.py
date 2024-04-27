@@ -1,8 +1,8 @@
 import unittest
 
-from AGMPostulates import AGMPostulates
-from Belief import Belief
-from BeliefBase import BeliefBase
+from src.AGMPostulates import AGMPostulates
+from src.Belief import Belief
+from src.BeliefBase import BeliefBase
 
 
 class AgmPostulatesTests(unittest.TestCase):

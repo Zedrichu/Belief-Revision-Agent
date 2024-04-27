@@ -1,8 +1,8 @@
 from typing import Set
 from sympy.logic.boolalg import BooleanFunction, to_cnf, Or, And
 
-from Clause import Clause
-from utils import dissociate
+from src.Clause import Clause
+from src.utils import dissociate
 
 
 class Belief:

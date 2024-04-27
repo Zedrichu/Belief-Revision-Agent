@@ -1,10 +1,9 @@
 import copy
 
-from Clause import Clause
-from Resolution import resolution
-from utils import *
-from typing import List, Optional
 from src.Belief import Belief
+from src.Clause import Clause
+from src.Resolution import resolution
+from src.utils import *
 
 
 class BeliefBase:

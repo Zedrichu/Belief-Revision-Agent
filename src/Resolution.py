@@ -1,4 +1,4 @@
-from Clause import Clause
+from src.Clause import Clause
 
 
 def resolution(clauses: set[Clause]):

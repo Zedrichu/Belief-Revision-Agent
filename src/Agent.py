@@ -2,8 +2,8 @@ import copy
 from itertools import combinations
 from typing import Set, List
 
-from BeliefBase import BeliefBase
-from Belief import Belief
+from src.BeliefBase import BeliefBase
+from src.Belief import Belief
 
 
 class Agent:
