@@ -78,7 +78,7 @@ def print_help():
     print("2. Remove a statement from the belief base - contraction BB ÷ φ")
     print("3. Update the belief base with a reliable statement - revision BB * φ")
     print("4. Check if a statement is consistent with the belief base - entailment BB ⊨ φ")
-    print("5. Run the postulates")
+    print("5. Run the AGM postulates")
     print("6. Query the state of the belief base BB")
     print("7. Exit the agent")
     print("_______________________________________________________")
