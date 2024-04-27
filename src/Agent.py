@@ -65,6 +65,31 @@ class Agent:
         self._belief_base = contracted_base
         return self._belief_base
 
+    def entrenched_contraction(self, phi: str) -> BeliefBase:
+        """
+        Entrenchment-based contraction operator for belief base BB ÷ φ
+        q ∈ K ÷ p iff q ∈ K and either p < (p ∨ q) or p ∈ Cn(∅)
+        :param phi: the statement to be contracted in string format
+        :return: resulting belief base
+        """
+        self._belief_base.update_entrenchment()
+        contracted = []
+
+        for belief in self._belief_base.get_beliefs():
+            tautology = BeliefBase([]).entails(phi)
+
+            contractor = Belief(phi)
+            contractor.update_priority(self._belief_base.epistemic(contractor))
+
+            disjunction = Belief(f'{phi} | ({belief.formula})')
+            disjunction.update_priority(self._belief_base.epistemic(disjunction))
+
+            if tautology or contractor.priority < disjunction.priority:
+                contracted.append(belief)
+
+        self._belief_base = BeliefBase(contracted)
+        return self._belief_base
+
     def expansion(self, phi: str) -> BeliefBase:
         """
         Expansion operator for belief base BB + φ
