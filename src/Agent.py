@@ -159,7 +159,7 @@ class Agent:
 
     def check_entailment(self, query: str):
         """
-        Verify consistency of a statement with the belief base (entailment)
+        Verify entailment of a statement from the belief base
         :param query: the statement to be checked in string format
         :return: boolean - entailed or not
         """
@@ -171,7 +171,8 @@ class Agent:
         :param query: the statement to be checked in string
         :return: boolean - consistent or inconsistent
         """
-        return not self._belief_base.entails('~' + query)
+
+        return not self._belief_base.entails(f'~({query})')
 
     def get_belief_base(self) -> BeliefBase:
         return copy.copy(self._belief_base)
