@@ -58,6 +58,9 @@ def main_menu():
         elif int(res) == 5:
             try:
                 phi = input("§ Enter φ -> ").strip()
+                if phi == "":
+                    print("Empty input for φ. Operation failed, returning to main menu...")
+                    continue
                 psi = input("§ Enter optional ψ (for extensionality) -> ").strip()
                 psi = psi if psi else None
                 print("# Testing the AGM Postulates...")
